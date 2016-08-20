@@ -30,18 +30,36 @@ public class Wisp : MonoBehaviour
 	{
         if (cam != null && sphere != null)
         {
-            if (Vector3.Distance(cam.transform.position, sphere.transform.position) < 1)
+            var dist = Vector3.Distance(cam.transform.position, sphere.transform.position);
+            if (dist < 1)
             {
-                if (rotate != null)
-                    rotate.speed = 6;
                 if (pop != null)
                     pop.Play();
                 if (sphere != null)
-                    sphere.transform.Translate((Random.value - 0.5f) * 4f, 0f, (Random.value - 0.5f) * 4f);
+                {
+                    bool hit1, hit2;
+                    Vector3 vec;
+                    var pos = sphere.transform.position;
+                    do
+                    {
+                        var half = new Vector3(pos.x, pos.y * 0.4f, pos.z);
+                        vec = new Vector3((Random.value - 0.5f) * 4f, 0f, (Random.value - 0.5f) * 4f);
+                        hit1 = Physics.Raycast(sphere.transform.position, vec, vec.magnitude * 2, SpatialMapping.PhysicsRaycastMask);
+                        hit2 = Physics.Raycast(half, vec, vec.magnitude * 2, SpatialMapping.PhysicsRaycastMask);
+                    } while (hit1 || hit2);
+                    sphere.transform.position = Vector3.Lerp(pos, pos + vec, 5f);
+                    //sphere.transform.Translate(vec);
+                }
+            }
+            else if (dist < 2)
+            {
+                if (rotate != null)
+                    rotate.speed = 6;
             }
             else
             {
-                rotate.speed = 3;
+                if (rotate != null)
+                    rotate.speed = 3;
             }
         }
 	}
